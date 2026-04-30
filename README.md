@@ -135,11 +135,6 @@ npm run dev
 Abhishek Sharma  
 GitHub: https://github.com/abhishek99sharma
 
----
-
-## 📌 Note
-
-Do not upload `.env` file to GitHub. Use `.env.example` for reference.
 
 ---
 
