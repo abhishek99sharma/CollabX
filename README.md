@@ -10,7 +10,7 @@ CollabX is designed to simplify teamwork by providing:
 
 - Secure authentication using Google OAuth
 - Workspace-based collaboration (multi-user system)
-- Role-based access control (OWNER / MEMBER)
+- Role-based access control (OWNER / MANAGER / MEMBER)
 - Task and project management features
 
 ---
