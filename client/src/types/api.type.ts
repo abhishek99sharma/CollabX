@@ -25,7 +25,7 @@ export type WorkspaceType = {
 };
 
 export type WorkspaceWithMembersType = WorkspaceType & {
-  members: any[];
+  members: unknown[];
 };
 
 export type PaginationType = {
@@ -42,7 +42,7 @@ export type ProjectType = {
   description: string;
   emoji: string;
   workspace: string;
-  createdBy?: any;
+  createdBy?: unknown;
   createdAt: string;
   updatedAt: string;
 };
@@ -96,7 +96,7 @@ export type WorkspaceByIdResponseType = {
 
 export type AllMembersInWorkspaceResponseType = {
   message: string;
-  roles: any[];
+  roles: unknown[];
   members: {
     _id: string;
     role: {
@@ -181,9 +181,9 @@ export type CreateTaskPayloadType = {
     description: string;
     priority: TaskPriorityEnumType;
     status: TaskStatusEnumType;
-    assignedTo: string;
+    assignedTo?: string | null;
     notes?: string;
-    dueDate: string;
+    dueDate?: string | null;
   };
 };
 
@@ -219,7 +219,7 @@ export type TaskType = {
     profilePicture: string | null;
   } | null;
   notes: string;
-  createdBy?: any;
+  createdBy?: unknown;
   dueDate: string;
   taskCode: string;
   createdAt?: string;

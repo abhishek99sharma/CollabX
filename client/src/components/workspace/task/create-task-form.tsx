@@ -30,6 +30,7 @@ import { toast } from "@/hooks/use-toast";
 import { TaskPriorityEnum, TaskStatusEnum } from "@/constant";
 import useWorkspaceId from "@/hooks/use-workspace-id";
 import useGetWorkspaceMembers from "@/hooks/api/use-get-workspace-members";
+import useGetProjectsInWorkspaceQuery from "@/hooks/api/use-get-projects";
 
 export default function CreateTaskForm({
   projectId,
@@ -43,6 +44,17 @@ export default function CreateTaskForm({
 
   const { data: membersData } = useGetWorkspaceMembers(workspaceId);
   const members = membersData?.members || [];
+
+  const { data: projectsData } = useGetProjectsInWorkspaceQuery({
+    workspaceId,
+    skip: !workspaceId,
+  });
+  const projects = projectsData?.projects || [];
+
+  const projectOptions = projects.map((project) => ({
+    label: `${project.emoji || "📁"} ${project.name}`,
+    value: project._id,
+  }));
 
   const { mutate, isPending } = useMutation({
     mutationFn: createTaskMutationFn,
@@ -80,13 +92,9 @@ export default function CreateTaskForm({
         required_error: "Priority is required",
       }
     ),
-    assignedTo: z.string().trim().min(1, {
-      message: "AssignedTo is required",
-    }),
+    assignedTo: z.string().trim().optional(),
     notes: z.string().trim().optional(),
-    dueDate: z.date({
-      required_error: "A date of birth is required.",
-    }),
+    dueDate: z.date().optional(),
   });
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -112,7 +120,8 @@ export default function CreateTaskForm({
       projectId: values.projectId,
       data: {
         ...values,
-        dueDate: values.dueDate.toISOString(),
+        assignedTo: values.assignedTo && values.assignedTo !== "unassigned" ? values.assignedTo : undefined,
+        dueDate: values.dueDate ? values.dueDate.toISOString() : undefined,
       },
     };
 
@@ -142,6 +151,42 @@ export default function CreateTaskForm({
     <div className="w-full h-full max-h-[600px] overflow-y-auto scrollbar">
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3">
+          {!projectId && (
+            <FormField
+              control={form.control}
+              name="projectId"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-sm">Project</FormLabel>
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select a project" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <div className="w-full max-h-[200px] overflow-y-auto scrollbar">
+                        {projectOptions.map((option) => (
+                          <SelectItem
+                            className="cursor-pointer"
+                            key={option.value}
+                            value={option.value}
+                          >
+                            {option.label}
+                          </SelectItem>
+                        ))}
+                      </div>
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          )}
+
           <FormField
             control={form.control}
             name="title"
@@ -272,6 +317,9 @@ export default function CreateTaskForm({
                          overflow-y-auto scrollbar
                         "
                       >
+                        <SelectItem className="cursor-pointer" value="unassigned">
+                          Unassigned
+                        </SelectItem>
                         {membersOptions?.map((option) => (
                           <SelectItem
                             className="cursor-pointer"
